@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "185098071591",
+    "project_id": "food-for-everyone-cbfec",
+    "storage_bucket": "food-for-everyone-cbfec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185098071591:android:b59a2dd242c1173d0a6802",
+        "android_client_info": {
+          "package_name": "com.example.food_delivery_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185098071591-7iopkc9rhbv4vap9eus40t3d6s00pvha.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAer_5nh3Z-shj7Afh_1-BEDmnJQJvnVLU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185098071591-7iopkc9rhbv4vap9eus40t3d6s00pvha.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

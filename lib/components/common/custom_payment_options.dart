@@ -5,11 +5,14 @@ import '../utils/ui_constants.dart';
 class CustomListTile extends StatelessWidget {
   CustomListTile(
       {required this.value,
+      required this.groupValue,
       required this.title,
+      required this.onChange,
       this.paymentBackground = Colors.white,
       this.paymentImage = 'assets/images/Card.png',
       this.showIcon = false});
-  int value;
+  String? value,groupValue;
+  void Function(dynamic)? onChange;
   late Color paymentBackground;
   late String paymentImage, title;
   late bool showIcon;
@@ -36,11 +39,11 @@ class CustomListTile extends StatelessWidget {
           ),
         ],
       ),
-      leading: Radio(
+      leading: Radio<dynamic>(
         activeColor: Color(0xFFFA4A0C),
         value: value,
-        groupValue: 1,
-        onChanged: (value) {},
+        groupValue: groupValue,
+        onChanged: onChange,
       ),
     );
   }

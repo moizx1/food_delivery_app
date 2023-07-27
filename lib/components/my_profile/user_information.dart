@@ -30,6 +30,13 @@ class _InformationState extends State<Information> {
     }
   }
 
+  String? groupValue = 'card';
+  onRadioChange(value) {
+    setState(() {
+      groupValue = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +70,9 @@ class _InformationState extends State<Information> {
                             color: Colors.black),
                         height: 80,
                         width: 80,
-                        child: selectedImage()),
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20.0),
+                            child: selectedImage())),
                     SizedBox(width: 20.0),
                     Flexible(
                       child: Column(
@@ -127,7 +136,9 @@ class _InformationState extends State<Information> {
                 child: Column(
                   children: [
                     CustomListTile(
-                      value: 1,
+                      groupValue: groupValue,
+                      onChange: onRadioChange,
+                      value: 'card',
                       title: 'Card',
                       paymentBackground: Color(0xFFF47B0A),
                       paymentImage: 'assets/images/Card.png',
@@ -138,7 +149,9 @@ class _InformationState extends State<Information> {
                       child: Divider(),
                     ),
                     CustomListTile(
-                      value: 2,
+                      groupValue: groupValue,
+                      onChange: onRadioChange,
+                      value: 'bank',
                       title: 'Bank',
                       paymentBackground: Color(0xFFEB4796),
                       paymentImage: 'assets/images/Bank.png',
@@ -149,7 +162,9 @@ class _InformationState extends State<Information> {
                       child: Divider(),
                     ),
                     CustomListTile(
-                      value: 3,
+                      groupValue: groupValue,
+                      onChange: onRadioChange,
+                      value: 'paypal',
                       title: 'Paypal',
                       paymentBackground: Color(0xFF0038FF),
                       paymentImage: 'assets/images/PayPal.png',

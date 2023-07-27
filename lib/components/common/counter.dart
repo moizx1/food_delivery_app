@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../utils/ui_constants.dart';
 
-class Counter extends StatefulWidget {
-  @override
-  State<Counter> createState() => _CounterState();
-}
-
-class _CounterState extends State<Counter> {
-  int count = 0;
+class Counter extends StatelessWidget {
+  Counter({required this.updateQuantity, this.quantity = 1});
+  final void Function(int) updateQuantity;
+  int quantity;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +21,8 @@ class _CounterState extends State<Counter> {
         children: [
           GestureDetector(
             onTap: () {
-              if (count > 0) {
-                setState(() {
-                  count--;
-                });
+              if (quantity > 1) {
+                updateQuantity(--quantity);
               }
             },
             child: Icon(
@@ -38,13 +32,11 @@ class _CounterState extends State<Counter> {
             ),
           ),
           SizedBox(width: 8),
-          Text(count.toString(), style: counterTextStyle),
+          Text(quantity.toString(), style: counterTextStyle),
           SizedBox(width: 8),
           GestureDetector(
             onTap: () {
-              setState(() {
-                count++;
-              });
+              updateQuantity(++quantity);
             },
             child: Icon(
               Icons.add,

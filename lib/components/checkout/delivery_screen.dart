@@ -1,13 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:collection/collection.dart';
 import 'package:food_delivery_app/components/common/custom_appbar.dart';
 import 'package:food_delivery_app/components/common/custom_button.dart';
 import 'package:food_delivery_app/components/common/custom_payment_options.dart';
 import 'package:food_delivery_app/components/utils/ui_constants.dart';
+import 'package:food_delivery_app/model/order_model.dart';
 
-class DeliveryScreen extends StatelessWidget {
+import '../../model/food_model.dart';
+
+class DeliveryScreen extends StatefulWidget {
+  @override
+  State<DeliveryScreen> createState() => _DeliveryScreenState();
+}
+
+class _DeliveryScreenState extends State<DeliveryScreen> {
+  OrderModel orderModel = OrderModel();
+  Map<String, bool>? deliveryMethod;
+  List<Map<String, dynamic>> items = [];
+
+  String? groupValue = 'doorDelivery';
+  onRadioChange(value) {
+    setState(() {
+      groupValue = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<FoodModel> cartList =
+        ModalRoute.of(context)!.settings.arguments as List<FoodModel>;
+
+    int calculate = 0;
+    for (int i = 0; i < cartList.length; i++) {
+      calculate += cartList[i].quantity! * cartList[i].price!;
+    }
+    String total = calculate.toString();
+
     return Scaffold(
       backgroundColor: Color(0xFFF2F2F2),
       appBar: CustomAppBar(title: 'Checkout'),
@@ -85,16 +113,20 @@ class DeliveryScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     CustomListTile(
-                      value: 1,
+                      value: 'doorDelivery',
                       title: 'Door delivery',
+                      groupValue: groupValue,
+                      onChange: onRadioChange,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 70.0, right: 28),
                       child: Divider(),
                     ),
                     CustomListTile(
-                      value: 2,
+                      value: 'pickUp',
                       title: 'Pick up',
+                      groupValue: groupValue,
+                      onChange: onRadioChange,
                     ),
                   ],
                 ),
@@ -111,7 +143,7 @@ class DeliveryScreen extends StatelessWidget {
                     style: tabTextStyle,
                   ),
                   Text(
-                    '23000',
+                    total,
                     style: TextStyle(
                       fontFamily: 'SF Pro',
                       fontWeight: FontWeight.w600,
@@ -128,7 +160,20 @@ class DeliveryScreen extends StatelessWidget {
                 text: 'Proceed to payment',
                 isMargin: false,
                 onPress: () {
-                  Navigator.pushNamed(context, '/payment');
+                  if (groupValue != null) {
+                    for (int i = 0; i < cartList.length; i++) {
+                      items.add({
+                        'foodId': cartList[i].foodId,
+                        'quantity': cartList[i].quantity
+                      });
+                    }
+                    orderModel.cartList = items;
+                    orderModel.totalPrice = calculate;
+                    orderModel.chooseDeliveryMethod = groupValue;
+
+                    Navigator.pushNamed(context, '/payment',
+                        arguments: orderModel);
+                  }
                 },
               ),
             ),

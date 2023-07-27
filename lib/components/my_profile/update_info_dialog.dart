@@ -102,7 +102,9 @@ class UpdateDialog extends StatelessWidget {
                                     color: Colors.black),
                                 height: 80,
                                 width: 80,
-                                child: selectedImage()),
+                                child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    child: selectedImage())),
                           ),
                           Positioned(
                               bottom: 0,

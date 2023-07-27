@@ -1,10 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:shimmer/shimmer.dart';
 
 class FoodCard extends StatelessWidget {
   FoodCard(
       {required this.imageUrl, required this.foodLabel, required this.price});
-  String imageUrl, foodLabel;
-  int price;
+  final String imageUrl, foodLabel;
+  final int price;
+
+  Widget imageShimmer() {
+    return Expanded(
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(70),
+          child: Container(
+            height: 140,
+            width: 140,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Flexible(
@@ -33,19 +52,19 @@ class FoodCard extends StatelessWidget {
                         fontSize: 22.0,
                       ),
                     ),
-                    Text(
-                      'tomato mix',
-                      style: TextStyle(
-                        fontFamily: 'SF Pro',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 22.0,
-                      ),
-                    ),
+                    // Text(
+                    //   'tomato mix',
+                    //   style: TextStyle(
+                    //     fontFamily: 'SF Pro',
+                    //     fontWeight: FontWeight.w600,
+                    //     fontSize: 22.0,
+                    //   ),
+                    // ),
                     SizedBox(
                       height: 20,
                     ),
                     Text(
-                      price.toString(),
+                      'Rs ${price.toString()}',
                       style: TextStyle(
                         color: Color(0xFFFA4A0C),
                         fontFamily: 'SF Pro',
@@ -60,12 +79,17 @@ class FoodCard extends StatelessWidget {
                 ),
               ),
               Positioned(
-                left: 0.0,
-                right: 0.0,
+                left: 0,
+                right: 0,
                 top: -37.5,
-                child: Image.network(
-                  imageUrl,
-                  height: 145,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(70),
+                  child: Image.network(
+                    imageUrl,
+                    height: 140,
+                    width: 140,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ],

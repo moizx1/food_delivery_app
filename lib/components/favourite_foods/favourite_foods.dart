@@ -7,6 +7,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:food_delivery_app/components/common/custom_appbar.dart';
 import 'package:food_delivery_app/components/common/custom_button.dart';
 import 'package:food_delivery_app/components/common/food_card.dart';
+import 'package:food_delivery_app/constants/constants.dart';
 import '../utils/ui_constants.dart';
 
 class FavouriteFoods extends StatefulWidget {
@@ -15,6 +16,49 @@ class FavouriteFoods extends StatefulWidget {
 }
 
 class _FavouriteFoodsState extends State<FavouriteFoods> {
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<DocumentSnapshot> _foods = [];
+  List<dynamic> favouriteFoodIds = [];
+  bool isLoading = true;
+
+  Future<List<String>> _fetchUserData() async {
+    try {
+      DocumentSnapshot snapshot =
+          await _firestore.collection('users').doc(userData!.email).get();
+      if (snapshot.exists && snapshot.data() != null) {
+        List<dynamic> ids = snapshot['favouriteFood'];
+        return ids.cast<String>();
+      }
+      return [];
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  Future<void> _fetchFoods() async {
+    favouriteFoodIds = await _fetchUserData();
+    QuerySnapshot snapshots = await _firestore.collection('food').get();
+
+    for (var doc in snapshots.docs) {
+      var id = doc.id;
+      if (favouriteFoodIds.contains(id)) {
+        setState(() {
+          _foods.add(doc);
+        });
+      }
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchFoods();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,23 +67,57 @@ class _FavouriteFoodsState extends State<FavouriteFoods> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: ListView.builder(itemBuilder: (context, index) {
-                return Text('hi');
-              }),
-            ),
-            Expanded(flex: 4, child: Container()),
-            Expanded(
-              flex: 0,
-              child: CustomButton(
-                text: 'Add to cart',
-                isMargin: false,
-                onPress: () => Navigator.pushNamed(context, '/cart'),
-              ),
-            ),
-            Expanded(flex: 3, child: Container()),
+              child: isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFFA4A0C),
+                        strokeWidth: 3,
+                      ),
+                    )
+                  : ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      itemCount: _foods.length,
+                      itemBuilder: (context, index) {
+                        DocumentSnapshot item = _foods[index];
+
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 48.0, bottom: 15),
+                          child: Dismissible(
+                            key: UniqueKey(),
+                            onDismissed: (direction) async {
+                              await _firestore
+                                  .collection('users')
+                                  .doc(userData!.email)
+                                  .update({
+                                'favouriteFood':
+                                    FieldValue.arrayRemove([item.id])
+                              }).then((_) {
+                                setState(() {
+                                  _foods.remove(item);
+                                  userData!.favouriteFoods?.remove(item.id);
+                                });
+                              }).catchError((error) {
+                                print("Failed to update user: $error");
+                              });
+                            },
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(context, '/foodInfo',
+                                    arguments: item);
+                              },
+                              child: FoodCard(
+                                foodLabel: item['name'],
+                                imageUrl: item['image'],
+                                price: item['price'],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            )
           ],
         ),
       ),

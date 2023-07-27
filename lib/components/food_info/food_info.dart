@@ -17,13 +17,6 @@ class _FoodInfoState extends State<FoodInfo> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   int _currentPosition = 0;
   bool isLiked = false;
-  List<dynamic>? foods;
-
-  @override
-  void initState() {
-    super.initState();
-    foods = userData!.favouriteFoods;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,20 +44,7 @@ class _FoodInfoState extends State<FoodInfo> {
               child: IconButton(
                 onPressed: () async {
                   try {
-                    if (!(userData!.favouriteFoods!.contains(item.id))) {
-                      await _firestore
-                          .collection('users')
-                          .doc(userData!.email)
-                          .update({
-                        'favouriteFood': FieldValue.arrayUnion([item.id])
-                      }).then((_) {
-                        setState(() {
-                          userData!.favouriteFoods?.add(item.id);
-                        });
-                      }).catchError((error) {
-                        print("Failed to update user: $error");
-                      });
-                    } else {
+                    if (userData!.favouriteFoods?.contains(item.id) ?? false) {
                       await _firestore
                           .collection('users')
                           .doc(userData!.email)
@@ -77,12 +57,29 @@ class _FoodInfoState extends State<FoodInfo> {
                       }).catchError((error) {
                         print("Failed to update user: $error");
                       });
+                    } else {
+                      await _firestore
+                          .collection('users')
+                          .doc(userData!.email)
+                          .update({
+                        'favouriteFood': FieldValue.arrayUnion([item.id])
+                      }).then((_) {
+                        setState(() {
+                          userData!.favouriteFoods = [];
+                          userData!.favouriteFoods?.add(item.id);
+                          print(userData!.favouriteFoods);
+                        });
+                      }).catchError((error) {
+                        print("Failed to update user: $error");
+                      });
                     }
                   } catch (e) {
                     print(e);
                   }
                 },
-                icon: userData!.favouriteFoods!.contains(item.id)
+                icon: userData != null &&
+                        userData!.favouriteFoods != null &&
+                        userData!.favouriteFoods!.contains(item.id)
                     ? FaIcon(FontAwesomeIcons.solidHeart)
                     : FaIcon(FontAwesomeIcons.heart),
                 iconSize: 18,
@@ -156,7 +153,7 @@ class _FoodInfoState extends State<FoodInfo> {
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
-                  item['price'].toString(),
+                  'Rs ${item['price'].toString()}',
                   style: TextStyle(
                       fontFamily: 'SF Pro',
                       fontWeight: FontWeight.w700,
@@ -201,7 +198,15 @@ class _FoodInfoState extends State<FoodInfo> {
               child: CustomButton(
                 text: 'Add to cart',
                 isMargin: false,
-                onPress: () => Navigator.pushNamed(context, '/cart'),
+                onPress: () async {
+                  await _firestore
+                      .collection('users')
+                      .doc(userData!.email)
+                      .collection('cart')
+                      .doc(item.id)
+                      .set({'foodId': item.id, 'quantity': 1});
+                  Navigator.pushNamed(context, '/cart');
+                },
               ),
             ),
             Expanded(flex: 3, child: Container()),

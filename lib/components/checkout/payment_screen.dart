@@ -1,11 +1,44 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:food_delivery_app/components/common/custom_appbar.dart';
 import 'package:food_delivery_app/components/common/custom_button.dart';
 import 'package:food_delivery_app/components/common/custom_payment_options.dart';
 import 'package:food_delivery_app/components/utils/ui_constants.dart';
+import 'package:food_delivery_app/model/order_model.dart';
 
-class PaymentScreen extends StatelessWidget {
+class PaymentScreen extends StatefulWidget {
+  PaymentScreen({this.arguments});
+  final arguments;
+  @override
+  State<PaymentScreen> createState() => _PaymentScreenState();
+}
+
+class _PaymentScreenState extends State<PaymentScreen> {
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? deliveryMethod;
+  String? paymentMethod = 'card';
+  OrderModel orderModel = OrderModel();
+
+  onPaymentChange(value) {
+    setState(() {
+      paymentMethod = value;
+    });
+  }
+
+  onDeliveryChange(value) {
+    setState(() {
+      deliveryMethod = value;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    orderModel = widget.arguments;
+    
+    deliveryMethod = orderModel.chooseDeliveryMethod;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,22 +74,26 @@ class PaymentScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     CustomListTile(
-                      value: 1,
+                      value: 'card',
                       title: 'Card',
                       paymentBackground: Color(0xFFF47B0A),
                       paymentImage: 'assets/images/Card.png',
                       showIcon: true,
+                      groupValue: paymentMethod,
+                      onChange: onPaymentChange,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 70.0, right: 28),
                       child: Divider(),
                     ),
                     CustomListTile(
-                      value: 2,
+                      value: 'bank',
                       title: 'Bank',
                       paymentBackground: Color(0xFFEB4796),
                       paymentImage: 'assets/images/Bank.png',
                       showIcon: true,
+                      groupValue: paymentMethod,
+                      onChange: onPaymentChange,
                     ),
                   ],
                 ),
@@ -76,16 +113,20 @@ class PaymentScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     CustomListTile(
-                      value: 1,
+                      value: 'doorDelivery',
                       title: 'Door delivery',
+                      groupValue: deliveryMethod,
+                      onChange: onDeliveryChange,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 70.0, right: 28),
                       child: Divider(),
                     ),
                     CustomListTile(
-                      value: 2,
+                      value: 'pickUp',
                       title: 'Pick up',
+                      groupValue: deliveryMethod,
+                      onChange: onDeliveryChange,
                     ),
                   ],
                 ),
@@ -102,7 +143,7 @@ class PaymentScreen extends StatelessWidget {
                     style: tabTextStyle,
                   ),
                   Text(
-                    '23000',
+                    orderModel.totalPrice.toString(),
                     style: TextStyle(
                       fontFamily: 'SF Pro',
                       fontWeight: FontWeight.w600,
@@ -189,8 +230,42 @@ class PaymentScreen extends StatelessWidget {
                                     flex: 7,
                                     child: CustomButton(
                                       text: 'Proceed',
-                                      onPress: () =>
-                                          Navigator.pushNamed(context, '/home'),
+                                      onPress: () async {
+                                        deliveryMethod == 'doorDelivery'
+                                            ? orderModel.deliveryMethod = {
+                                                'doorDelivery': true,
+                                                'pickUp': false
+                                              }
+                                            : orderModel.deliveryMethod = {
+                                                'doorDelivery': false,
+                                                'pickUp': true
+                                              };
+                                        paymentMethod == 'card'
+                                            ? orderModel.paymentMethod = {
+                                                'card': true,
+                                                'bank': false
+                                              }
+                                            : orderModel.paymentMethod = {
+                                                'card': false,
+                                                'bank': true
+                                              };
+
+                                        OrderModel uploadDocument = OrderModel(
+                                            cartList: orderModel.cartList,
+                                            deliveryMethod:
+                                                orderModel.deliveryMethod,
+                                            paymentMethod:
+                                                orderModel.paymentMethod,
+                                            totalPrice: orderModel.totalPrice);
+                                        await _firestore
+                                            .collection("orders")
+                                            .doc()
+                                            .set(uploadDocument
+                                                .toJson()) // <-- Updated data
+                                            .then((_) {
+                                          Navigator.pushNamed(context, '/home');
+                                        });
+                                      },
                                     )),
                               ],
                             )

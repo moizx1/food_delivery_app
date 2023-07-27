@@ -73,8 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 Padding(
                   padding: const EdgeInsets.only(right: 12.0),
                   child: IconButton(
-                    onPressed: () {},
-                    icon: FaIcon(FontAwesomeIcons.heart),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/cart');
+                    },
+                    icon: FaIcon(FontAwesomeIcons.cartShopping),
                     iconSize: 18,
                   ),
                 )

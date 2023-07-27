@@ -7,7 +7,7 @@ import 'package:food_delivery_app/components/checkout/cart.dart';
 import 'package:food_delivery_app/components/checkout/delivery_screen.dart';
 import 'package:food_delivery_app/components/common/myOffers.dart';
 import 'package:food_delivery_app/components/common/no_history.dart';
-import 'package:food_delivery_app/components/common/swipeToDelete.dart';
+import 'package:food_delivery_app/components/common/cart_item.dart';
 import 'package:food_delivery_app/components/food_info/food_info.dart';
 import 'package:food_delivery_app/components/home_screen/home_screen.dart';
 import 'package:food_delivery_app/components/home_screen/search_results.dart';
@@ -21,7 +21,6 @@ import 'components/common/food_card.dart';
 import 'components/common/noConnection.dart';
 import 'components/common/no_orders.dart';
 import 'components/my_profile/personal_detail.dart';
-import 'example.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,14 +46,15 @@ class MyApp extends StatelessWidget {
         '/personalDetails': (context) => PersonalDetails(),
         '/information': (context) => Information(),
         '/history': (context) => NoHistory(),
-        '/results': (context) => SearchResults(),
+        // '/results': (context) => SearchResults(),
         '/foodInfo': (context) => FoodInfo(),
         '/favouriteFoods': (context) => FavouriteFoods(),
         '/orders': (context) => NoOrders(),
         '/cart': (context) => Cart(),
-        '/payment': (context) => PaymentScreen(),
+        '/payment': (context) => PaymentScreen(arguments: ModalRoute.of(context)!.settings.arguments,),
         '/delivery': (context) => DeliveryScreen(),
       },
     );
   }
 }
+

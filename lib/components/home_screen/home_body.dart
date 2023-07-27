@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:food_delivery_app/components/common/food_card.dart';
 import 'package:food_delivery_app/components/utils/ui_constants.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeBody extends StatefulWidget {
   @override
@@ -11,20 +12,61 @@ class HomeBody extends StatefulWidget {
 
 class _HomeBodyState extends State<HomeBody> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  bool isLoading = true;
   List<DocumentSnapshot> _items = [];
 
-  Future<void> _fetchData() async {
+  Future<void> _fetchFoods() async {
     QuerySnapshot snapshot = await _firestore.collection('food').get();
     setState(() {
       _items = snapshot.docs;
+      isLoading = false;
     });
+  }
+
+  Widget buildShimmer() {
+    return Expanded(
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: 3,
+          itemBuilder: (context, int index) {
+            return Padding(
+              padding: const EdgeInsets.only(
+                  top: 57.5, bottom: 25.0, left: 35.0, right: 20.0),
+              child: FoodCard(
+                foodLabel: '',
+                imageUrl: '',
+                price: 0,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget imageShimmer() {
+    return Expanded(
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(70),
+          child: Container(
+            height: 140,
+            width: 140,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    _fetchData();
+    _fetchFoods();
   }
 
   @override
@@ -120,29 +162,31 @@ class _HomeBodyState extends State<HomeBody> {
         Expanded(
           child: TabBarView(
             children: [
-              ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _items.length,
-                itemBuilder: (context, int index) {
-                  DocumentSnapshot item = _items[index];
+              isLoading
+                  ? buildShimmer()
+                  : ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _items.length,
+                      itemBuilder: (context, int index) {
+                        DocumentSnapshot item = _items[index];
 
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                        top: 57.5, bottom: 25.0, left: 35.0, right: 20.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/foodInfo',
-                            arguments: item);
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                              top: 57.5, bottom: 25.0, left: 35.0, right: 20.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, '/foodInfo',
+                                  arguments: item);
+                            },
+                            child: FoodCard(
+                              foodLabel: item['name'],
+                              imageUrl: item['image'],
+                              price: item['price'],
+                            ),
+                          ),
+                        );
                       },
-                      child: FoodCard(
-                        foodLabel: item['name'],
-                        imageUrl: item['image'],
-                        price: item['price'],
-                      ),
                     ),
-                  );
-                },
-              ),
               Center(
                 child: Text("It's sunny here"),
               ),

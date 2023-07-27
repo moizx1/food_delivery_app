@@ -13,14 +13,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       toolbarHeight: 100,
       leadingWidth: 82.5,
-      leading: GestureDetector(
-        onTap: () => Navigator.pop(context),
-        child: Icon(
-          IconData(0xee84,
-              fontFamily: 'MaterialIcons', matchTextDirection: true),
-          size: 18,
-        ),
-      ),
+      leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(
+            IconData(0xee84,
+                fontFamily: 'MaterialIcons', matchTextDirection: true),
+            size: 18,
+          )),
       centerTitle: true,
       title: Text(title, style: appBarTextStyle),
       backgroundColor: Color(0xFFF2F2F2),
